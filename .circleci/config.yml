@@ -1,14 +1,26 @@
 version: 2.1
 jobs:
-    build:
-        docker:
-            - image: cimg/node:14.10.1
-        steps:
-            - checkout
-            - restore_cache:
-                key: yarn-packages-{{ checksum "yarn.lock" }}
-            - run: yarn global add node-gyp && yarn install
-            - save_cache:
-                key: yarn-packages-{{ checksum "yarn.lock" }}
-                paths:
-                - ~/.cache/yarn
+  build:
+    docker:
+      - image: cimg/node:14.10.1
+    steps:
+      - checkout
+      - restore_cache:
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+      - run: yarn global add node-gyp && yarn install
+      - save_cache:
+        key: yarn-packages-{{ checksum "yarn.lock" }}
+        paths:
+        - ~/.cache/yarn
+  check_format:
+    steps:
+      - checkout
+      - run : yarn lint && yarn format:check
+
+workflows:
+  build_and_test:
+    jobs:
+        - build
+        - check_format:
+            requires: 
+                - build
