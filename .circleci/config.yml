@@ -4,31 +4,31 @@ workflows:
     jobs:
       - build
       - test:
-        requires:
-          - build
+          requires:
+            - build
 jobs:
   build:
     docker: 
-      - image: cimg/node:14.10.1 # the primary container, where your job's commands are run
+      - image: cimg/node:14.10.1
     steps:
-      - checkout # check out the code in the project directory
+      - checkout
       - restore_cache:
-          key: yarn-packages-{{ checksum "yarn.lock" }}
+          key: yarn-packages-v2{{ checksum "yarn.lock" }}
       - run: yarn global add node-gyp && yarn install
       - save_cache:
-          key: yarn-packages-{{ checksum "yarn.lock" }}      
+          key: yarn-packages-v2{{ checksum "yarn.lock" }}      
           paths:
             - ./node_modules
   test:
     docker:
-      - image: cimg/node:14.10.1 # the primary container, where your job's commands are run
+      - image: cimg/node:14.10.1
     steps: 
       - checkout
       - restore_cache:
-          key: yarn-packages-{{ checksum "yarn.lock" }}
+          key: yarn-packages-v2{{ checksum "yarn.lock" }}
       - run: yarn lint && yarn format:check
       - run: yarn test:ci
       - save_cache:
-          key: yarn-packages-{{ checksum "yarn.lock" }}      
+          key: yarn-packages-v2{{ checksum "yarn.lock" }}      
           paths:
             - ./node_modules
