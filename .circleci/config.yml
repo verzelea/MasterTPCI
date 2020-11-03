@@ -4,14 +4,14 @@ workflows:
     jobs:
       - build
       - lint:
-        requires:
-          - build
+          requires:
+            - build
       - test:
           requires:
             - build
       - e2e:
-        requires:
-          - build
+          requires:
+            - build
 jobs:
   build:
     docker: 
