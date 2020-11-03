@@ -3,7 +3,10 @@ workflows:
   build_and_test:
     jobs:
       - build
-      - test:
+      - lint:
+          requires:
+            - build
+      - e2e:
           requires:
             - build
 jobs:
@@ -19,7 +22,7 @@ jobs:
           key: yarn-packages-v2{{ checksum "yarn.lock" }}      
           paths:
             - ./node_modules
-  test:
+  lint:
     docker:
       - image: cimg/node:14.10.1
     steps: 
@@ -32,3 +35,28 @@ jobs:
           key: yarn-packages-v2{{ checksum "yarn.lock" }}      
           paths:
             - ./node_modules
+  e2e:
+    docker:
+       - image: cimg/node:12.18
+              environment: 
+                DATABASE_URL: "postgres://e2e:test@localhost:5432/psdb"
+                API_PORT: 3000
+                API_HOST: localhost
+                API_PROTOCOL: http
+                JWT_SECRET: wazaa
+            - image: circleci/postgres:9.6.2-alpine
+              environment:
+                POSTGRES_USER: e2e
+                POSTGRES_DB: psdb   
+                POSTGRES_PASSWORD: test
+        
+        steps: 
+            - checkout
+            - restore_cache:
+                key: yarn-packages-v2{{ checksum "yarn.lock" }}
+            - run:
+                name: Waiting for POSTGRES
+                command: dockerize -wait tcp://localhost:5432 -timeout 1m
+            - run: 
+                name: Launching e2e test
+                command: yarn test:e2e
