@@ -38,17 +38,17 @@ jobs:
   e2e:
     docker:
        - image: cimg/node:12.18
-              environment: 
-                DATABASE_URL: "postgres://e2e:test@localhost:5432/psdb"
-                API_PORT: 3000
-                API_HOST: localhost
-                API_PROTOCOL: http
-                JWT_SECRET: wazaa
-            - image: circleci/postgres:9.6.2-alpine
-              environment:
-                POSTGRES_USER: e2e
-                POSTGRES_DB: psdb   
-                POSTGRES_PASSWORD: test
+            environment:
+              DATABASE_URL: "postgres://e2e:test@localhost:5432/psdb"
+              API_PORT: 3000
+              API_HOST: localhost
+              API_PROTOCOL: http
+              JWT_SECRET: wazaa
+          - image: circleci/postgres:9.6.2-alpine
+            environment:
+              POSTGRES_USER: e2e
+              POSTGRES_DB: psdb   
+              POSTGRES_PASSWORD: test
         
         steps: 
             - checkout
