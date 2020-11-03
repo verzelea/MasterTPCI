@@ -4,11 +4,11 @@ workflows:
     jobs:
       - build
       - lint:
-          requires:
-            - build
+        requires:
+          - build
       - e2e:
-          requires:
-            - build
+        requires:
+          - build
 jobs:
   build:
     docker: 
@@ -16,25 +16,25 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: yarn-packages-v2{{ checksum "yarn.lock" }}
+        key: yarn-packages-v2{{ checksum "yarn.lock" }}
       - run: yarn global add node-gyp && yarn install
       - save_cache:
-          key: yarn-packages-v2{{ checksum "yarn.lock" }}      
-          paths:
-            - ./node_modules
+        key: yarn-packages-v2{{ checksum "yarn.lock" }}      
+        paths:
+          - ./node_modules
   lint:
     docker:
       - image: cimg/node:14.10.1
     steps: 
       - checkout
       - restore_cache:
-          key: yarn-packages-v2{{ checksum "yarn.lock" }}
+        key: yarn-packages-v2{{ checksum "yarn.lock" }}
       - run: yarn lint && yarn format:check
       - run: yarn test:ci
       - save_cache:
-          key: yarn-packages-v2{{ checksum "yarn.lock" }}      
-          paths:
-            - ./node_modules
+        key: yarn-packages-v2{{ checksum "yarn.lock" }}      
+        paths:
+          - ./node_modules
   e2e:
     docker:
       - image: cimg/node:12.18
