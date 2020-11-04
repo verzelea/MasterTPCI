@@ -2,41 +2,41 @@ version: 2.1
 workflows:
   build_and_test:
     jobs:
-      - build
-      - lint:
-          requires:
-            - build
-      - test:
-          requires:
-            - build
-      - e2e:
-          requires:
-            - build
-      - doc_server_artifact:
+        - build
+        - lint:
             requires:
-            - test
-            - e2e
-            - lint
-        filters:
-            branches:
-            only:
-                - main    
-      - image:
-        requires: 
-            - test
-            - e2e
-            - lint
-        filters:
-            branches:
-            only:
-                - main
-      - publish:
-        requires: 
-            - image
-        filters:
-            branches:
-            only:
-                - main
+                - build
+        - test:
+            requires:
+               - build
+        - e2e:
+            requires:
+                - build
+        - doc_server_artifact:
+            requires:
+                - test
+                - e2e
+                - lint
+            filters:
+              branches:
+                only:
+                    - main
+        - image:
+            requires:
+                - test
+                - e2e
+                - lint
+            filters:
+              branches:
+                only:
+                    - main
+        - publish:
+            requires:
+                - image
+            filters:
+              branches:
+                only:
+                    - main
 jobs:
   build:
     docker: 
