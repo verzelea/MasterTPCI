@@ -91,8 +91,6 @@ jobs:
             name: Launching e2e test
             command: yarn test:e2e
   image:
-      environment:
-          IMAGE_NAME: grennrich/mastertpci
       docker:
           - image: circleci/buildpack-deps:stretch
       steps:
@@ -100,14 +98,14 @@ jobs:
           - setup_remote_docker
           - run:
               name: Build Docker image
-              command: docker build -t $IMAGE_NAME:app .
+              command: docker build -t grennrich/mastertpci:app .
           - run:
               name: Archive Docker image
-              command: docker save -o image.tar $IMAGE_NAME
+              command: docker save -o image.tar grennrich/mastertpci
           - persist_to_workspace:
               root: .
               paths:
-                  - ./image.tar
+                - ./image.tar
   publish:
       environment:
           IMAGE_NAME: grennrich/mastertpci
