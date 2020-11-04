@@ -12,6 +12,31 @@ workflows:
       - e2e:
           requires:
             - build
+      - doc_server_artifact:
+            requires:
+            - test
+            - e2e
+            - lint
+        filters:
+            branches:
+            only:
+                - main    
+      - image:
+        requires: 
+            - test
+            - e2e
+            - lint
+        filters:
+            branches:
+            only:
+                - main
+      - publish:
+        requires: 
+            - image
+        filters:
+            branches:
+            only:
+                - main
 jobs:
   build:
     docker: 
@@ -65,7 +90,7 @@ jobs:
         - run: 
             name: Launching e2e test
             command: yarn test:e2e
-    build_image:
+    image:
         environment:
             IMAGE_NAME: grennrich/mastertpci
         docker:
@@ -83,7 +108,7 @@ jobs:
                 root: .
                 paths:
                     - ./image.tar
-    publish_latest:
+    publish:
         environment:
             IMAGE_NAME: grennrich/mastertpci
         docker:
@@ -98,6 +123,8 @@ jobs:
             - run:
                 name: Publish Docker Image to Docker Hub
                 command: |
-                    echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-                    docker tag $IMAGE_NAME:latest $IMAGE_NAME:$CIRCLE_BUILD_NUM
-                    docker push $IMAGE_NAME
+                    echo "$DOCKERHUB_PASS" | docker login -u galimede --password-stdin
+                    docker tag $IMAGE_NAME:app $IMAGE_NAME:$CIRCLE_BUILD_NUM
+                    docker tag $IMAGE_NAME:app $IMAGE_NAME:latest
+                    docker push $IMAGE_NAME:latest
+                    docker push $IMAGE_NAME:$CIRCLE_BUILD_NUM
