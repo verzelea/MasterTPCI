@@ -12,7 +12,7 @@ workflows:
         - e2e:
             requires:
                 - build
-        - doc_server_artifact:
+        - doc_artifact:
             requires:
                 - test
                 - e2e
@@ -128,3 +128,13 @@ jobs:
                   docker tag $IMAGE_NAME:app $IMAGE_NAME:latest
                   docker push $IMAGE_NAME:latest
                   docker push $IMAGE_NAME:$CIRCLE_BUILD_NUM
+  doc_artifact:
+      docker:
+        - image: cimg/node:12.18
+      steps:
+          - checkout
+          - restore_cache:
+              key: yarn-packages-v2{{ checksum "yarn.lock" }}
+          - run: yarn doc:build
+          - store_artifacts:
+              path: doc-server/
