@@ -65,3 +65,39 @@ jobs:
         - run: 
             name: Launching e2e test
             command: yarn test:e2e
+    build_image:
+        environment:
+            IMAGE_NAME: grennrich/mastertpci
+        docker:
+            - image: circleci/buildpack-deps:stretch
+        steps:
+            - checkout
+            - setup_remote_docker
+            - run:
+                name: Build Docker image
+                command: docker build -t $IMAGE_NAME:app .
+            - run:
+                name: Archive Docker image
+                command: docker save -o image.tar $IMAGE_NAME
+            - persist_to_workspace:
+                root: .
+                paths:
+                    - ./image.tar
+    publish_latest:
+        environment:
+            IMAGE_NAME: grennrich/mastertpci
+        docker:
+            - image: circleci/buildpack-deps:stretch       
+        steps:
+            - attach_workspace:
+                at: /tmp/workspace
+            - setup_remote_docker
+            - run:
+                name: Load archived Docker image
+                command: docker load -i /tmp/workspace/image.tar
+            - run:
+                name: Publish Docker Image to Docker Hub
+                command: |
+                    echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                    docker tag $IMAGE_NAME:latest $IMAGE_NAME:$CIRCLE_BUILD_NUM
+                    docker push $IMAGE_NAME
